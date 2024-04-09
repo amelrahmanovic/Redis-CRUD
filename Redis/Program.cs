@@ -20,6 +20,7 @@ namespace Redis
                         Console.WriteLine("0-Add:");
                         Console.WriteLine("1-Read");
                         Console.WriteLine("2-Delete:");
+                        Console.WriteLine("3-Key exist:");
                         Console.WriteLine("10-EXIT:");
                         Console.WriteLine("Option:");
                         opcija = int.Parse(Console.ReadLine());
@@ -46,6 +47,9 @@ namespace Redis
                         break;
                     case 2:
                         Console.WriteLine("Delete: " + redisCRUD.Delete("Test"));
+                        break;
+                    case 3:
+                        Console.WriteLine("Key exist: " + redisCRUD.ExistKey("Test"));
                         break;
 
                     case 10: Environment.Exit(0); break;

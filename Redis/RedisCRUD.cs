@@ -14,16 +14,9 @@ namespace Redis
         }
         public bool Save(string Id, string serializedObject)
         {
-            bool result;
-            try//try to connect from local machine
-            {
-                _redis = ConnectionMultiplexer.Connect(_connectionString+",connectTimeout=10000,responseTimeout=10000");//localhost
-            }
-            catch (Exception)//connect to docker
-            {
-                _redis = ConnectionMultiplexer.Connect("redis:6379,connectTimeout=10000,responseTimeout=10000");//redis is name container
-            }
+            OpenConnection();
 
+            bool result;
             var db = _redis.GetDatabase();
             result = db.StringSet(Id, serializedObject);
 
@@ -33,16 +26,9 @@ namespace Redis
         }
         public string Get(string Id)
         {
-            string result = "";
-            try//try to connect from local machine
-            {
-                _redis = ConnectionMultiplexer.Connect(_connectionString + ",connectTimeout=10000,responseTimeout=10000");//localhost
-            }
-            catch (Exception)//connect to docker
-            {
-                _redis = ConnectionMultiplexer.Connect("redis:6379,connectTimeout=10000,responseTimeout=10000");//redis is name container
-            }
+            OpenConnection();
 
+            string result = "";
             var db = _redis.GetDatabase();
             result = db.StringGet(Id);
             _redis.Close();
@@ -50,6 +36,26 @@ namespace Redis
             return result;
         }
         public bool Delete(string Id)
+        {
+            OpenConnection();
+
+            var db = _redis.GetDatabase();
+            bool result = db.KeyDelete(Id);
+            _redis.Close();
+            return result;
+        }
+        public bool ExistKey(string Id) 
+        {
+            OpenConnection();
+
+            var db = _redis.GetDatabase();
+            bool result = db.KeyExists(Id);
+            _redis.Close();
+
+            return result;
+        }
+
+        private void OpenConnection()
         {
             try//try to connect from local machine
             {
@@ -59,11 +65,6 @@ namespace Redis
             {
                 _redis = ConnectionMultiplexer.Connect("redis:6379,connectTimeout=10000,responseTimeout=10000");//redis is name container
             }
-
-            var db = _redis.GetDatabase();
-            bool result = db.KeyDelete(Id);
-            _redis.Close();
-            return result;
         }
     }
 }
